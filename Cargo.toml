@@ -1,0 +1,4 @@
+[package]
+name = "read_write_ext"
+version = "0.1.0"
+edition = "2021"
