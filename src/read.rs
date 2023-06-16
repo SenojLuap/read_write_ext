@@ -7,6 +7,9 @@ pub trait ReadExt {
 
     /// Read a [`u64`]
     fn read_u64(&mut self) -> Result<u64>;
+
+    /// Read a [`String`]
+    fn read_string(&mut self) -> Result<String>;
 }
 
 impl<R: Read> ReadExt for R {
@@ -30,7 +33,16 @@ impl<R: Read> ReadExt for R {
         self.read_exact(&mut buffer)?;
         Ok(u64::from_le_bytes(buffer))
     }
+
+    /// Read a [`String`]
+    fn read_string(&mut self) -> Result<String> {
+        let len = self.read_u64()?;
+        let len = len.try_into().map_err(|_| Error::new(ErrorKind::Unsupported, "could not convert to usize"))?;
+        let mut buffer = Vec::with_capacity(len);
+        self.read_exact(&mut buffer)?;
+        String::from_utf8(buffer).map_err(|_| Error::new(ErrorKind::InvalidData, "data is not valid UTF-8"))
+    }
 }
 
 
-use std::io::{Read, Result};
+use std::io::{Error, ErrorKind, Read, Result};
