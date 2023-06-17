@@ -55,6 +55,17 @@ impl Readable for String {
     }
 }
 
+impl<Re> Readable for Vec<Re> where Re: Readable {
+    fn read<R: Read>(reader: &mut R) -> Result<Self> {
+        let len = reader.read_ext()?;
+        let mut res = Vec::with_capacity(len);
+        for _ in 1..len {
+            res.push(reader.read_ext()?);
+        }
+        Ok(res)
+    }
+}
+
 use std::io::{Error, ErrorKind, Read, Result};
 
 use crate::ReadExt;
