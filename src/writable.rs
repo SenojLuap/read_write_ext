@@ -49,7 +49,7 @@ impl Writable for u64 {
     }
 }
 
-impl Writable for str {
+impl Writable for String {
     fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
         let bytes = self.as_bytes();
         writer.write_ext(&bytes.len())?;
