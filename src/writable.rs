@@ -5,10 +5,10 @@ pub trait Writable {
 
 impl Writable for usize {
     fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
-        let res = self
+        let res: u64 = (*self)
             .try_into()
-            .map_err(|_| Error::new(ErrorKind::Unsupported, "could not convert to usize"))?;
-        writer.write_ext(res)
+            .map_err(|_| Error::new(ErrorKind::Unsupported, "could not convert to u64"))?;
+        writer.write_ext(&res)
     }
 }
 
@@ -73,8 +73,9 @@ where
 }
 
 use std::{
+    collections::HashMap,
     hash::Hash,
-    io::{Error, ErrorKind, Result, Write}, collections::HashMap,
+    io::{Error, ErrorKind, Result, Write},
 };
 
 use crate::WriteExt;
