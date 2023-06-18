@@ -3,19 +3,6 @@ pub trait Writable {
     fn write<W: Write>(&self, writer: &mut W) -> Result<()>;
 }
 
-impl<Wr> Writable for Vec<Wr>
-where
-    Wr: Writable,
-{
-    fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
-        writer.write_ext(&self.len())?;
-        for value in self.iter() {
-            writer.write_ext(value)?;
-        }
-        Ok(())
-    }
-}
-
 impl Writable for usize {
     fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
         let res = self
@@ -57,6 +44,37 @@ impl Writable for String {
     }
 }
 
-use std::io::{Error, ErrorKind, Result, Write};
+impl<Wr> Writable for Vec<Wr>
+where
+    Wr: Writable,
+{
+    fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
+        writer.write_ext(&self.len())?;
+        for value in self.iter() {
+            writer.write_ext(value)?;
+        }
+        Ok(())
+    }
+}
+
+impl<WKey, WValue> Writable for HashMap<WKey, WValue>
+where
+    WKey: Writable + Eq + Hash,
+    WValue: Writable,
+{
+    fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
+        writer.write_ext(&self.len())?;
+        for (key, value) in self.iter() {
+            writer.write_ext(key)?;
+            writer.write_ext(value)?;
+        }
+        Ok(())
+    }
+}
+
+use std::{
+    hash::Hash,
+    io::{Error, ErrorKind, Result, Write}, collections::HashMap,
+};
 
 use crate::WriteExt;

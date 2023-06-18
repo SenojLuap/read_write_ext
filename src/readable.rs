@@ -55,7 +55,10 @@ impl Readable for String {
     }
 }
 
-impl<Re> Readable for Vec<Re> where Re: Readable {
+impl<Re> Readable for Vec<Re>
+where
+    Re: Readable,
+{
     fn read<R: Read>(reader: &mut R) -> Result<Self> {
         let len = reader.read_ext()?;
         let mut res = Vec::with_capacity(len);
@@ -66,6 +69,27 @@ impl<Re> Readable for Vec<Re> where Re: Readable {
     }
 }
 
-use std::io::{Error, ErrorKind, Read, Result};
+impl<RKey, RValue> Readable for HashMap<RKey, RValue>
+where
+    RKey: Readable + Eq + Hash,
+    RValue: Readable,
+{
+    fn read<R: Read>(reader: &mut R) -> Result<Self> {
+        let len = reader.read_ext()?;
+        let mut res = HashMap::with_capacity(len);
+        for _ in 0..len {
+            let key = reader.read_ext()?;
+            let value = reader.read_ext()?;
+            res.insert(key, value);
+        }
+        Ok(res)
+    }
+}
+
+use std::{
+    collections::HashMap,
+    hash::Hash,
+    io::{Error, ErrorKind, Read, Result},
+};
 
 use crate::ReadExt;
