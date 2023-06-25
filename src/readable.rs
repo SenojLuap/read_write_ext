@@ -60,16 +60,11 @@ where
     Re: Readable,
 {
     fn read<R: Read>(reader: &mut R) -> Result<Self> {
-        println!("Read vec");
         let len = reader.read_ext()?;
-        println!("size: {}", len);
         let mut res = Vec::with_capacity(len);
         for _ in 0..len {
-            println!("read element");
             res.push(reader.read_ext()?);
-            println!("got it");
         }
-        println!("done");
         Ok(res)
     }
 }
