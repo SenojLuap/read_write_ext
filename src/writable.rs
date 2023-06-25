@@ -44,6 +44,14 @@ impl Writable for String {
     }
 }
 
+impl Writable for &str {
+    fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
+        let bytes = self.as_bytes();
+        writer.write_ext(&bytes.len())?;
+        writer.write_all(bytes)
+    }
+}
+
 impl<Wr> Writable for Vec<Wr>
 where
     Wr: Writable,

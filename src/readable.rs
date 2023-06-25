@@ -48,7 +48,7 @@ impl Readable for usize {
 impl Readable for String {
     fn read<R: Read>(reader: &mut R) -> Result<Self> {
         let len: usize = reader.read_ext()?;
-        let mut buffer = Vec::with_capacity(len);
+        let mut buffer = vec![0_u8; len];
         reader.read_exact(&mut buffer)?;
         String::from_utf8(buffer)
             .map_err(|_| Error::new(ErrorKind::InvalidData, "could not convert from utf-8"))
@@ -60,11 +60,16 @@ where
     Re: Readable,
 {
     fn read<R: Read>(reader: &mut R) -> Result<Self> {
+        println!("Read vec");
         let len = reader.read_ext()?;
+        println!("size: {}", len);
         let mut res = Vec::with_capacity(len);
-        for _ in 1..len {
+        for _ in 0..len {
+            println!("read element");
             res.push(reader.read_ext()?);
+            println!("got it");
         }
+        println!("done");
         Ok(res)
     }
 }

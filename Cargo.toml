@@ -2,3 +2,6 @@
 name = "read_write_ext"
 version = "0.7.0"
 edition = "2021"
+
+[dev-dependencies]
+tempfile = "3.6.0"

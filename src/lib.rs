@@ -1,5 +1,7 @@
 mod read;
 mod readable;
+#[cfg(test)]
+mod tests;
 mod write;
 mod writable;
 
