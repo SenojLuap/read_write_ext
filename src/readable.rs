@@ -5,6 +5,14 @@ where
     fn read<R: Read>(reader: &mut R) -> Result<Self>;
 }
 
+impl Readable for bool {
+    fn read<R: Read>(reader: &mut R) -> Result<Self> {
+        let mut buffer = [0_u8; 1];
+        reader.read_exact(&mut buffer)?;
+        Ok(buffer[0] > 0_u8)
+    }
+}
+
 impl Readable for u8 {
     fn read<R: Read>(reader: &mut R) -> Result<Self> {
         let mut buffer = [0_u8; 1];
@@ -83,6 +91,17 @@ where
             res.insert(key, value);
         }
         Ok(res)
+    }
+}
+
+impl<Re> Readable for Option<Re>
+    where Re: Readable {
+    fn read<R: Read>(reader: &mut R) -> Result<Self> {
+        if reader.read_ext()? {
+            Ok(Some(reader.read_ext()?))
+        } else {
+            Ok(None)
+        }
     }
 }
 

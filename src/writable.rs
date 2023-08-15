@@ -3,6 +3,12 @@ pub trait Writable {
     fn write<W: Write>(&self, writer: &mut W) -> Result<()>;
 }
 
+impl Writable for bool {
+    fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
+        writer.write_all(&[if *self { 1_u8 } else { 0_u8 }; 1])
+    }
+}
+
 impl Writable for usize {
     fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
         let res: u64 = (*self)
@@ -77,6 +83,19 @@ where
             writer.write_ext(value)?;
         }
         Ok(())
+    }
+}
+
+impl<Wr> Writable for Option<Wr>
+    where Wr: Writable {
+    fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
+        match *self {
+            Some(ref contents) => {
+                writer.write_ext(&true)?;
+                writer.write_ext(contents)
+            }
+            None => writer.write_ext(&false)
+        }
     }
 }
 
