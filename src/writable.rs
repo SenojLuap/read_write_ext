@@ -99,6 +99,24 @@ impl<Wr> Writable for Option<Wr>
     }
 }
 
+impl<Wr> Writable for Box<Wr>
+    where Wr: Writable {
+    fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
+        writer.write_ext(self.as_ref())
+    }
+}
+
+impl <Wr> Writable for Box<[Wr]>
+    where Wr: Writable {
+    fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
+        writer.write_ext(&self.as_ref().len())?;
+        for elem in self.as_ref().iter() {
+            writer.write_ext(elem)?;
+        }
+        Ok(())
+    }
+}
+
 use std::{
     collections::HashMap,
     hash::Hash,

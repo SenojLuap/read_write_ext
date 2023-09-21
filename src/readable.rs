@@ -105,6 +105,26 @@ impl<Re> Readable for Option<Re>
     }
 }
 
+impl<Re> Readable for Box<Re>
+    where Re: Readable {
+    fn read<R: Read>(reader: &mut R) -> Result<Self> {
+        let res = reader.read_ext()?;
+        Ok(Box::new(res))
+    }
+}
+
+impl<Re> Readable for Box<[Re]>
+    where Re: Readable {
+    fn read<R: Read>(reader: &mut R) -> Result<Self> {
+        let len = reader.read_ext()?;
+        let mut res = Vec::with_capacity(len);
+        for _ in 0..len {
+            res.push(reader.read_ext()?);
+        }
+        Ok(res.into_boxed_slice())
+    }
+}
+
 use std::{
     collections::HashMap,
     hash::Hash,
